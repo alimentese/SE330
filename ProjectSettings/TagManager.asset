@@ -3,7 +3,15 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Hazard
+  - Coin
+  - PoisonousPlant
+  - LeftCollider
+  - RightCollider
+  - PlayerHitbox
+  - Shuriken
+  - Platform
   layers:
   - Default
   - TransparentFX
@@ -11,11 +19,11 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Background
+  - Foreground
+  - Enemy
+  - Item
+  - Player
   - 
   - 
   - 
@@ -40,4 +48,25 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 297560053
+    locked: 0
+  - name: Foreground
+    uniqueID: 2601380505
+    locked: 0
+  - name: Plaftorm
+    uniqueID: 3709424685
+    locked: 0
+  - name: Enemy
+    uniqueID: 4012608781
+    locked: 0
+  - name: Player
+    uniqueID: 525286831
+    locked: 0
+  - name: Hazard
+    uniqueID: 3653199757
+    locked: 0
+  - name: UI
+    uniqueID: 1597015525
     locked: 0
