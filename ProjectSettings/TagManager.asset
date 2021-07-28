@@ -12,6 +12,11 @@ TagManager:
   - PlayerHitbox
   - Shuriken
   - Platform
+  - spawned
+  - Spawned
+  - Health
+  - Time
+  - Frozer
   layers:
   - Default
   - TransparentFX

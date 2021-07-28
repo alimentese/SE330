@@ -20,7 +20,6 @@ public class Hazard : MonoBehaviour
     {
         if(stop == false) {
             if (dummy.y != flag.transform.position.y) {
-                Debug.Log("doru mu");
                 dummy = flag.transform.position;
                 RisingRate += 0.3f;
             }

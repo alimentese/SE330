@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameEngine : MonoBehaviour
@@ -12,12 +13,15 @@ public class GameEngine : MonoBehaviour
     public GameObject[] platforms;
     public GameObject hazard;
     public GameObject shuriken;
+    public GameObject health;
+    public GameObject time;
+    public GameObject menu;
+
     GameObject newshuriken = null;
     public GameObject frozer;
-    //float angle = 360.0f;
-    Vector3 dummyvector;
     Vector3 direction;
-    Quaternion rotation;
+
+
 
     public Text scoreUI;
     public Image healthbar;
@@ -27,18 +31,11 @@ public class GameEngine : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
-        //        shuriken.transform.eulerAngles = new Vector3(shuriken.transform.eulerAngles.x, shuriken.transform.eulerAngles.y, shuriken.transform.eulerAngles.z + 360f * Time.deltaTime);
         
         StartCoroutine(HazardWave());
         score = player.GetComponent<Player>().score;
         playerbody = player.GetComponent<CapsuleCollider2D>();
-        //shuriken = GameObject.FindGameObjectWithTag("Shuriken");
         shurikencollider = shuriken.GetComponent<BoxCollider2D>();
-        //Instantiate(shuriken);
-        //shuriken.transform.position = player.transform.position;
-        //shuriken.GetComponent<Rigidbody2D>().AddForce(new Vector2(5f, 0));
-        //gameObject.GetComponent<Rigidbody2D>().AddForce((player.transform.position - shuriken.transform.position) * 30f);
-        //StartCoroutine(ShurikenThrower());
         StartCoroutine(ShurikenThrower());
 
     }
@@ -47,52 +44,36 @@ public class GameEngine : MonoBehaviour
     void Update() {
         Debug.Log("player position: " + player.transform.position);
         Debug.Log("player localposition: " + player.transform.localPosition);
-       // if (shuriken != null) {
-            //shuriken.transform.rotation = Quaternion.Slerp(shuriken.transform.rotation, angle, Time.deltaTime * 2f);
-            //shuriken.transform.Translate((player.transform.position - shuriken.transform.position) * 0.5f * Time.deltaTime);
-           // shuriken.transform.localEulerAngles = new Vector3(shuriken.transform.localEulerAngles.x, shuriken.transform.localEulerAngles.y, shuriken.transform.localEulerAngles.z + 360f * Time.deltaTime);
-            //shuriken.transform.Translate((player.transform.position - shuriken.transform.localPosition) * 0.5f * Time.deltaTime);
-            //shuriken.transform.position = Vector3.MoveTowards(shuriken.transform.position, player.transform.position, 5f * Time.deltaTime); follows target
-            //shuriken.transform.position = Vector3.MoveTowards(shuriken.transform.position, player.transform.position, 5f * Time.deltaTime);
+        Debug.Log("time sclae:: " + Time.timeScale);
 
-           if(shurikenmoving == true && newshuriken != null) {
-                newshuriken.transform.localEulerAngles = new Vector3(newshuriken.transform.localEulerAngles.x, newshuriken.transform.localEulerAngles.y, newshuriken.transform.localEulerAngles.z + 360f * Time.deltaTime);
-                newshuriken.transform.position = Vector3.MoveTowards(newshuriken.transform.position, direction, 5f * Time.deltaTime);
-           }        //   shuriken.transform.localEulerAngles = new Vector3(shuriken.transform.localEulerAngles.x, shuriken.transform.localEulerAngles.y, shuriken.transform.localEulerAngles.z + 360f * Time.deltaTime);
+        if (shurikenmoving == true && newshuriken != null) {
+            newshuriken.transform.localEulerAngles = new Vector3(newshuriken.transform.localEulerAngles.x, newshuriken.transform.localEulerAngles.y, newshuriken.transform.localEulerAngles.z + 360f * Time.deltaTime);
+            newshuriken.transform.position = Vector3.MoveTowards(newshuriken.transform.position, direction, 5f * Time.deltaTime);
+        } 
 
-        //}
         Debug.Log("Direction: " + direction);
 
         player.GetComponent<Player>().score += 1 * Time.deltaTime;
-            if (player.transform.position.y + 6 >= flag.transform.position.y) {
-                flag.transform.position = new Vector3(flag.transform.position.x, flag.transform.position.y + 4, 0);
-                Debug.Log("saaaa");
-                int random = Random.Range(0, platforms.Length);
-                GameObject platform = Instantiate(platforms[random]);
-                platform.transform.position = new Vector3(flag.transform.position.x, flag.transform.position.y - 3, 0);
-                
-            }
+        if (player.transform.position.y + 2 >= flag.transform.position.y) {
+            flag.transform.position = new Vector3(flag.transform.position.x, flag.transform.position.y + 8.5f, 0);
+            int random = Random.Range(0, platforms.Length);
+            GameObject platform = Instantiate(platforms[random]);
+            platform.transform.position = new Vector3(flag.transform.position.x, flag.transform.position.y - 0.5f, 0);
+            platform.transform.parent = GameObject.FindGameObjectWithTag("Spawned").transform;
+            platform.SetActive(true);
+
+        }
         score = (int)player.GetComponent<Player>().score;
         healthbar.fillAmount = (float)player.GetComponent<Player>().health / 100f;
         Debug.Log((float)player.GetComponent<Player>().health);
         scoreUI.text = score.ToString();
-    }
-
-    private void ShurikenThrow() {
-        Vector3 ShurikenPosition;
-        float x = Random.Range(-21, 3);
-        float y = Random.Range(-5, 9);
-        float z = 0f;
-        ShurikenPosition = new Vector3(x, y, z);
-        Instantiate(shuriken);
-        shuriken.transform.parent = gameObject.transform;
-        shuriken.transform.position = ShurikenPosition;
-        shurikenmoving = false;
-        StartCoroutine(ShurikenThrower());
-        if (shurikenmoving == true) {
-            shuriken.transform.position = Vector3.MoveTowards(shuriken.transform.position, direction, 5f * Time.deltaTime);
+        if (player.GetComponent<Player>().health <= 0) {
+            Time.timeScale = 0;
+            menu.SetActive(true);
         }
     }
+
+    
     IEnumerator HazardWave() {
         while(true) {
             yield return new WaitForSeconds(0.25f);
@@ -123,32 +104,28 @@ public class GameEngine : MonoBehaviour
             }
         }       
     }
-    IEnumerator TimeController() {
-        if (hazard.GetComponent<Hazard>().stop == true) {
-            yield return new WaitForSeconds(2f);
-            hazard.GetComponent<Hazard>().stop = false;
-        }
-    }
+    
 
     private void OnTriggerEnter2D(Collider2D collision) {
         if(collision.CompareTag("Player")) {
-            Debug.Log("saaa");
-            if (newshuriken != null &&newshuriken.GetComponent<BoxCollider2D>().IsTouching(collision)) {
+            if(newshuriken != null &&newshuriken.GetComponent<BoxCollider2D>().IsTouching(collision)) {
                 player.GetComponent<Player>().health -= 10;
-                Debug.Log("as");
                 shurikenmoving = false;
                 Destroy(newshuriken);
                 newshuriken = null;
             }
-            if(frozer.GetComponent<BoxCollider2D>().IsTouching(collision)) {
-                Debug.Log("burasi");
-                hazard.GetComponent<Hazard>().stop = true;
-                Destroy(frozer);
-                StartCoroutine(TimeController());
-            }
+            
         }
 
     }
 
-    
+    public void Exit() {
+        Application.Quit();
+    }
+
+    public void StartGame() {
+        SceneManager.LoadScene(1);
+        Time.timeScale = 1;
+    }
+
 }

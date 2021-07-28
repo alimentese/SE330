@@ -15,10 +15,13 @@ public class Player : MonoBehaviour
     BoxCollider2D PlayerFeetCollider;
     Animator PlayerAnimator;
 
+    public GameObject hazard;
+
 
     // Start is called before the first frame update
     void Start()
     {
+        Time.timeScale = 1;
         PlayerRigidbody = GetComponent<Rigidbody2D>();
         PlayerFeetCollider = GetComponent<BoxCollider2D>();
         PlayerAnimator = GetComponent<Animator>();
@@ -26,10 +29,13 @@ public class Player : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        Attack1();
-        Run();
-        Jump();
-        FlipSprite();
+        if(health > 0) {
+            Attack1();
+            Run();
+            Jump();
+            FlipSprite();
+        }
+       
 
     }
 
@@ -40,7 +46,6 @@ public class Player : MonoBehaviour
     }
 
     private void Run() {
-        float controlThrow2 = Input.GetAxis("Vertical"); // value is between -1 to +1       
             float controlThrow = Input.GetAxisRaw("Horizontal"); // value is between -1 to +1
             Vector2 playerVelocity = new Vector2(controlThrow * runSpeed, PlayerRigidbody.velocity.y);
             PlayerRigidbody.velocity = playerVelocity;
@@ -69,22 +74,7 @@ public class Player : MonoBehaviour
                 //effector.rotationalOffset = 0f;
                 Vector2 jumpVelocityToAdd = new Vector2(0f, jumpSpeed);
                 PlayerRigidbody.velocity += jumpVelocityToAdd;
-            }
-            /*if (Input.GetKey("down") && Input.GetButtonDown("Jump")) {
-                if (effector.rotationalOffset == 0) {
-                    effector.rotationalOffset = 180f;
-                    Debug.Log("rotate 180");
-
-                }
-                else {
-                    effector.rotationalOffset = 0f;
-                }
-
-                //Thread.Sleep(timeDelay * 1000);
-                //System.Threading.Thread.Sleep(3000);
-
-            }*/
-
+            }           
         }
         else {
             return;
@@ -97,8 +87,59 @@ public class Player : MonoBehaviour
             Destroy(collision.gameObject);
         }
 
-        if(collision.CompareTag("LeftCollider")) {
-            Debug.Log("sol duvara carpildi!");
+        if (collision.CompareTag("Frozer")) {
+            hazard.GetComponent<Hazard>().stop = true;
+            Destroy(collision.gameObject);
+            StartCoroutine(TimeController());
+
+        }
+
+        if (collision.CompareTag("Health")) {
+            health += 10;
+            Destroy(collision.gameObject);
+
+        }
+
+        if (collision.CompareTag("Time")) {
+            Destroy(collision.gameObject);
+            StartCoroutine(TimeSlower());
+        }
+    }
+
+    IEnumerator TimeController() {
+        if (hazard.GetComponent<Hazard>().stop == true) {
+            yield return new WaitForSeconds(2f);
+            hazard.GetComponent<Hazard>().stop = false;
+        }
+    }
+
+    IEnumerator TimeSlower() {
+        if (Time.timeScale == 1.0f) {
+            Time.timeScale = 0.5f;
+            yield return new WaitForSeconds(10f);
+        }
+        Time.timeScale = 1f;
+    }
+
+    private void OnTriggerExit2D(Collider2D collision) {
+        
+    }
+
+
+    private void OnCollisionEnter2D(Collision2D collision) {
+        if (collision.gameObject.CompareTag("Platform")) {
+            if(collision.otherCollider == PlayerFeetCollider) {
+                if (collision.gameObject.GetComponent<Platform>().moving == true) {
+                    Debug.Log("player platform ustunde");
+                    transform.parent = collision.transform;
+                }
+            }            
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision) {
+        if (collision.gameObject.CompareTag("Platform")) {
+            transform.parent = null;
         }
     }
 
